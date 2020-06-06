@@ -11,6 +11,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.sun.kikyorss.*
+import com.sun.kikyorss.MyApplication.Companion.channelDao
+import com.sun.kikyorss.MyApplication.Companion.itemDao
 
 import com.sun.kikyorss.message.MsgType
 import es.dmoral.toasty.Toasty
@@ -33,16 +35,14 @@ class ChannelFragment : Fragment() {
         mainActivity = activity as MainActivity
         val viewModel = mainActivity.myViewModel
         val fragmentManager = mainActivity.supportFragmentManager
-        val itemDao = MyApplication.itemDao
-        val channelDao = MyApplication.channelDao
         val channelList = viewModel.channelList
-        val madapter = ChannelAdapter(viewModel.channelList)
+        val channelAdapter = ChannelAdapter(viewModel.channelList)
 
         mainActivity.toolBar.title = "订阅列表"
 
 
-        val add_feed = mainActivity.toolBar.menu.findItem(R.id.add_feed)
-        add_feed.isVisible = true
+        val addFeed = mainActivity.toolBar.menu.findItem(R.id.add_feed)
+        addFeed.isVisible = true
 
         mainActivity.toolBar.setOnMenuItemClickListener { item ->
             if (item != null)
@@ -80,8 +80,8 @@ class ChannelFragment : Fragment() {
         val swipeRefreshListener = SwipeRefreshLayout.OnRefreshListener {
             swipeRefresh.isRefreshing = true
             viewModel.channelList.clear()
-            viewModel.channelList.addAll(channelDao.loadAll().toMutableList())
-            madapter.notifyDataSetChanged()
+            viewModel.channelList.addAll(MyApplication.channelDao.loadAll().toMutableList())
+            channelAdapter.notifyDataSetChanged()
 
             var success = 0
             var fail = 0
@@ -91,7 +91,9 @@ class ChannelFragment : Fragment() {
                     for (i in it) {
                         if (i.second) success += 1 else fail += 1
                     }
-                    swipeRefresh.isRefreshing = false
+                    if (fragmentManager.findFragmentById(R.id.frag_container) is ChannelFragment) {
+                        swipeRefresh.isRefreshing = false
+                    }
                     mainActivity.myViewModel.refresh()
                     Toasty.info(mainActivity, "${success}成功 ${fail}失败", Toasty.LENGTH_SHORT).show()
                 }
@@ -107,10 +109,10 @@ class ChannelFragment : Fragment() {
 
         feedsRecycleView.apply {
             layoutManager = LinearLayoutManager(mainActivity)
-            adapter = madapter
+            adapter = channelAdapter
         }
 
-        madapter.setOnItemClickListener(object : ChannelAdapter.OnItemClickListener {
+        channelAdapter.setOnItemClickListener(object : ChannelAdapter.OnItemClickListener {
             override fun onClick(view: View, position: Int) {
                 fragmentManager.beginTransaction()
                     .replace(R.id.frag_container, ItemFragment(channelList[position]))
@@ -127,7 +129,7 @@ class ChannelFragment : Fragment() {
                         channelDao.update(channelList[position])
                         channelList.clear()
                         channelList.addAll(channelDao.loadAll().toMutableList())
-                        madapter.notifyDataSetChanged()
+                        channelAdapter.notifyDataSetChanged()
                     }
                     positiveButton(text = "修改标题")
                     negativeButton(text = "删除订阅") {
@@ -139,7 +141,7 @@ class ChannelFragment : Fragment() {
                             Toasty.LENGTH_SHORT
                         ).show()
                         channelList.removeAt(position)
-                        madapter.notifyDataSetChanged()
+                        channelAdapter.notifyDataSetChanged()
                     }
                     neutralButton(text = "取消")
                 }

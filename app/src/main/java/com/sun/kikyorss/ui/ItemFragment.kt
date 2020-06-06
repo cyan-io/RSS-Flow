@@ -29,13 +29,11 @@ class ItemFragment(val channel: Channel) : Fragment() {
 
         val mainActivity = activity as MainActivity
         val vm = mainActivity.myViewModel
-        mainActivity.toolBar.menu.findItem(R.id.add_feed).setVisible(false)
-        //mainActivity.menu_add_feed.setVisible(false)
-
-        mainActivity.toolBar.setTitle(channel.title)
+        mainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = false
+        mainActivity.toolBar.title = channel.title
 
         val itemAdapter =
-            mainActivity.myViewModel.itemMap[channel]?.let { ItemAdapter(it, mainActivity) }
+            mainActivity.myViewModel.itemMap[channel]?.let { ItemAdapter(it, mainActivity.supportFragmentManager) }
 
         articlesRecycleView.layoutManager = LinearLayoutManager(activity)
         articlesRecycleView.adapter = itemAdapter

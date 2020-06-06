@@ -11,8 +11,8 @@ android {
         applicationId "com.sun.kikyorss"
         minSdkVersion 26
         targetSdkVersion 29
-        versionCode 4
-        versionName "0.95@beta"
+        versionCode 5
+        versionName "0.96@beta"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -68,6 +68,9 @@ dependencies {
 
     implementation 'cn.bingoogolapple:bga-badgeview-api:1.1.8'
     annotationProcessor "cn.bingoogolapple:bga-badgeview-compiler:1.1.8"
+
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
 
     implementation "io.reactivex.rxjava3:rxjava:3.0.4"
     implementation "io.reactivex.rxjava3:rxandroid:3.0.0"

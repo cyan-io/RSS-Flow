@@ -1,55 +1,54 @@
 package com.sun.kikyorss.ui
 
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
+import com.sun.kikyorss.MyApplication
 import com.sun.kikyorss.R
 import com.sun.kikyorss.database.Item
 import com.sun.kikyorss.formatDate
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.adapter_layout.view.*
 
-class ItemAdapter(val itemList: List<Item>, val mainActivity: MainActivity) :
-    RecyclerView.Adapter<ItemAdapter.mViewHolder>() {
+class ItemAdapter(private val itemList: List<Item>, private val fragmentManager: FragmentManager) :
+    RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
-    inner class mViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val cell = itemView.cell
-        val title = itemView.title
-        //val description = itemView.article_description
-        val date = itemView.date
+    inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val cell = itemView.cell!!
+        val title = itemView.title!!
+        val date = itemView.date!!
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): mViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.adapter_layout, parent, false)
-        return mViewHolder(view)
+        return ItemViewHolder(view)
     }
 
     override fun getItemCount() = itemList.size + 1
 
-    override fun onBindViewHolder(holder: mViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         if (position < itemList.size) {
+            val item=itemList[position]
             holder.apply {
-                title.text = itemList[position].title
-                //description.text = itemList[position].description
+                title.text =item.title
             }
-            if(itemList[position].pubDate.length>1){
-                holder.date.visibility=View.VISIBLE
-                holder.date.text= formatDate(itemList[position].pubDate)
+            if (item.pubDate.isNotBlank()) {
+                holder.date.visibility = View.VISIBLE
+                holder.date.text = formatDate(item.pubDate)
             }
             holder.cell.setOnClickListener {
-                mainActivity.supportFragmentManager.beginTransaction().replace(
+                fragmentManager.beginTransaction().replace(
                     R.id.frag_container,
-                    ArticleFragment(itemList[position])
+                    ArticleFragment(item)
                 ).addToBackStack(null).commit()
             }
         } else {
-            holder.title.text=""
+            holder.title.text = ""
             holder.cell.setOnClickListener {
-                Toasty.info(mainActivity, "到结尾了哦~", Toasty.LENGTH_SHORT).show()
+                Toasty.info(MyApplication.context, "到结尾了哦~", Toasty.LENGTH_SHORT).show()
             }
         }
     }
