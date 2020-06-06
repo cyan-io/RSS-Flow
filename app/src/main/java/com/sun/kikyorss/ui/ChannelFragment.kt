@@ -1,6 +1,8 @@
 package com.sun.kikyorss.ui
 
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,11 +15,15 @@ import com.afollestad.materialdialogs.input.input
 import com.sun.kikyorss.*
 import com.sun.kikyorss.MyApplication.Companion.channelDao
 import com.sun.kikyorss.MyApplication.Companion.itemDao
+import com.sun.kikyorss.database.Channel
 
-import com.sun.kikyorss.message.MsgType
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_main.*
 import okhttp3.*
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
+import java.io.IOException
+import java.io.StringReader
 
 class ChannelFragment : Fragment() {
     lateinit var mainActivity: MainActivity
@@ -39,11 +45,7 @@ class ChannelFragment : Fragment() {
         val channelAdapter = ChannelAdapter(viewModel.channelList)
 
         mainActivity.toolBar.title = "订阅列表"
-
-
-        val addFeed = mainActivity.toolBar.menu.findItem(R.id.add_feed)
-        addFeed.isVisible = true
-
+        mainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = true
         mainActivity.toolBar.setOnMenuItemClickListener { item ->
             if (item != null)
                 when (item.itemId) {
@@ -51,16 +53,20 @@ class ChannelFragment : Fragment() {
                         MaterialDialog(mainActivity).show {
                             title(text = "添加订阅")
                             message(text = "仅支持RSS 2.0 协议")
-                            input { dialog, text ->
+                            input { dialog,text ->
                                 var right = false
                                 try {
                                     Request.Builder().url(text.toString()).build()
                                     right = true
                                 } catch (e: java.lang.Exception) {
-                                    MyApplication.msg.sendMsg(MsgType.ERROR_WRONG_FEED)
+                                    Toasty.error(
+                                        MyApplication.context,
+                                        "错误的订阅地址",
+                                        Toasty.LENGTH_LONG
+                                    ).show()
                                 }
                                 if (right)
-                                    mainActivity.getChannel(text.toString())
+                                    getChannel(text.toString())
                             }
                             positiveButton(text = "添加")
                             negativeButton(text = "取消")
@@ -78,31 +84,36 @@ class ChannelFragment : Fragment() {
         }
 
         val swipeRefreshListener = SwipeRefreshLayout.OnRefreshListener {
-            swipeRefresh.isRefreshing = true
-            viewModel.channelList.clear()
-            viewModel.channelList.addAll(MyApplication.channelDao.loadAll().toMutableList())
-            channelAdapter.notifyDataSetChanged()
+            if (channelDao.size() > 0) {
+                Log.i("__lis","channeldao${channelDao.size()}")
+                swipeRefresh.isRefreshing = true
+                viewModel.channelList.clear()
+                viewModel.channelList.addAll(MyApplication.channelDao.loadAll().toMutableList())
+                channelAdapter.notifyDataSetChanged()
 
-            var success = 0
-            var fail = 0
-            val l = LoadItemUnit2(null)
-            l.onResponse.observe(mainActivity, Observer {
-                if (it.size == channelList.size) {
-                    for (i in it) {
-                        if (i.second) success += 1 else fail += 1
+                var success = 0
+                var fail = 0
+                val l = LoadItemUnit2(null)
+                l.onResponse.observe(mainActivity, Observer {
+                    if (it.size == channelList.size) {
+                        for (i in it) {
+                            if (i.second) success += 1 else fail += 1
+                        }
+                        if (fragmentManager.findFragmentById(R.id.frag_container) is ChannelFragment) {
+                            swipeRefresh.isRefreshing = false
+                        }
+                        mainActivity.myViewModel.refresh()
+                        Toasty.info(mainActivity, "${success}成功 ${fail}失败", Toasty.LENGTH_SHORT)
+                            .show()
                     }
-                    if (fragmentManager.findFragmentById(R.id.frag_container) is ChannelFragment) {
-                        swipeRefresh.isRefreshing = false
-                    }
-                    mainActivity.myViewModel.refresh()
-                    Toasty.info(mainActivity, "${success}成功 ${fail}失败", Toasty.LENGTH_SHORT).show()
-                }
-            })
+                })
+            } else
+                swipeRefresh.isRefreshing = false
         }
 
         swipeRefresh.setOnRefreshListener(swipeRefreshListener)
 
-        if (mainActivity.hasNotRefresh) {
+        if (mainActivity.hasNotRefresh && channelDao.size() > 0) {
             swipeRefreshListener.onRefresh()
             mainActivity.hasNotRefresh = false
         }
@@ -145,6 +156,59 @@ class ChannelFragment : Fragment() {
                     }
                     neutralButton(text = "取消")
                 }
+            }
+        })
+    }
+
+    private fun getChannel(url: String) {
+        val urlFormatted= formatUrl(url)
+        if(channelDao.isExist(formatUrl(urlFormatted))){
+            Toasty.error(MyApplication.context, "订阅已存在", Toasty.LENGTH_SHORT).show()
+            return
+        }
+        val client = MyOkHttp.getClient()
+        val request = MyOkHttp.getRequset(urlFormatted)
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Looper.prepare()
+                Toasty.error(MyApplication.context, "网络错误", Toasty.LENGTH_LONG).show()
+                Looper.loop()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string().toString()
+                val isrss2 = isRss2(responseBody)
+                if (isrss2)
+                    try {
+                        var title: String = ""
+                        var description: String = ""
+                        val parser = XmlPullParserFactory.newInstance().newPullParser()
+                        parser.setInput(StringReader(responseBody))
+                        var eventType = parser.eventType
+
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            if (parser.depth == 3 && eventType == XmlPullParser.START_TAG)
+                                when (parser.name) {
+                                    "title" -> title = parser.nextText()
+                                    "description" -> description = parser.nextText()
+                                }
+                            eventType = parser.next()
+                        }
+                        channelDao.insert(Channel(title, urlFormatted, description))
+                        Looper.prepare()
+                        Toasty.success(MyApplication.context,"添加成功,请手动刷新",Toasty.LENGTH_SHORT).show()
+                        Looper.loop()
+                    } catch (e: Exception) {
+                        Looper.prepare()
+                        Toasty.error(MyApplication.context, "ERROR", Toasty.LENGTH_LONG).show()
+                        Looper.loop()
+                    }
+                else
+                    Toasty.error(
+                        MyApplication.context,
+                        "错误的订阅地址",
+                        Toasty.LENGTH_LONG
+                    ).show()
             }
         })
     }

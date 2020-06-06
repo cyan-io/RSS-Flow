@@ -1,6 +1,8 @@
 package com.sun.kikyorss
 
 import androidx.lifecycle.MutableLiveData
+import com.sun.kikyorss.MyApplication.Companion.channelDao
+import com.sun.kikyorss.MyApplication.Companion.itemDao
 import com.sun.kikyorss.database.*
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
@@ -15,8 +17,6 @@ import java.lang.Exception
 
 class LoadItemUnit2(var channelList: List<Channel>?) {
 
-    private val itemDao = MyApplication.itemDao
-    private val channelDao = MyApplication.channelDao
     private lateinit var emitter: FlowableEmitter<Pair<String,Boolean>>
     val onResponse=MutableLiveData<MutableList<Pair<String,Boolean>>>()
     private val mutableList= mutableListOf<Pair<String,Boolean>>()
@@ -48,7 +48,6 @@ class LoadItemUnit2(var channelList: List<Channel>?) {
         val request = MyOkHttp.getRequset(url)
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                //resPostValue(url, false)
                 emitter.onNext(Pair(url,false))
             }
 

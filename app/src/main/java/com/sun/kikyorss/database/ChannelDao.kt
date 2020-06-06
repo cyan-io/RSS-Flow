@@ -20,4 +20,7 @@ interface ChannelDao {
     fun query(l: String): Channel?
 
     fun isExist(l: String) = query(l) != null
+
+    @Query("select count(*) from channel")
+    fun size():Int
 }
