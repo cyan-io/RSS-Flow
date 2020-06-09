@@ -142,8 +142,8 @@ class ChannelFragment : Fragment() {
                         channelList.addAll(channelDao.loadAll().toMutableList())
                         channelAdapter.notifyDataSetChanged()
                     }
-                    positiveButton(text = "修改标题")
-                    negativeButton(text = "删除订阅") {
+                    positiveButton(text = "修改")
+                    negativeButton(text = "删除") {
                         channelDao.delete(channelList[position])
                         itemDao.deleteByChannel(channelList[position].link)
                         Toasty.success(
