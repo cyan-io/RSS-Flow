@@ -22,7 +22,7 @@ class InfoFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mainActivity=activity as MainActivity
-        mainActivity.toolBar.title="Kikyo Rss"
+        MainActivity.toolBar.title="Kikyo Rss"
         info.loadUrl(Configurations.infoUrl)
     }
 }

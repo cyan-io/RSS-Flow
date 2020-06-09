@@ -17,8 +17,6 @@ import kotlinx.android.synthetic.main.fragment_article.*
 
 class ArticleFragment(val item: Item) : Fragment() {
 
-    lateinit var mainActivity: MainActivity
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -28,10 +26,9 @@ class ArticleFragment(val item: Item) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mainActivity = activity as MainActivity
 
-        mainActivity.toolBar.setTitle(item.title)
-        mainActivity.toolBar.menu.findItem(R.id.add_feed).setVisible(false)
+        MainActivity.toolBar.title = item.title
+        MainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = false
 
         article_detail.settings.javaScriptEnabled = Configurations.javaScriptEnabled
 

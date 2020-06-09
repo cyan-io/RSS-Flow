@@ -15,7 +15,9 @@ import com.afollestad.materialdialogs.input.input
 import com.sun.kikyorss.*
 import com.sun.kikyorss.MyApplication.Companion.channelDao
 import com.sun.kikyorss.MyApplication.Companion.itemDao
+import com.sun.kikyorss.MyApplication.Companion.context
 import com.sun.kikyorss.database.Channel
+import com.sun.kikyorss.ui.MainActivity.Companion.mainActivityContext
 
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -25,7 +27,7 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.IOException
 import java.io.StringReader
 
-class ChannelFragment : Fragment() {
+class ChannelListFragment : Fragment() {
     lateinit var mainActivity: MainActivity
 
     override fun onCreateView(
@@ -39,18 +41,19 @@ class ChannelFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mainActivity = activity as MainActivity
-        val viewModel = mainActivity.myViewModel
-        val fragmentManager = mainActivity.supportFragmentManager
+        val viewModel = MainActivity.myViewModel
+        val fragmentManager = MainActivity.mainFragmentManager
         val channelList = viewModel.channelList
-        val channelAdapter = ChannelAdapter(viewModel.channelList)
+        val channelAdapter = ChannelListAdapter(viewModel.channelList)
 
-        mainActivity.toolBar.title = "订阅列表"
-        mainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = true
-        mainActivity.toolBar.setOnMenuItemClickListener { item ->
+        MainActivity.toolBar.title = "订阅列表"
+        MainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = true
+
+        MainActivity.toolBar.setOnMenuItemClickListener { item ->
             if (item != null)
                 when (item.itemId) {
                     R.id.add_feed -> {
-                        MaterialDialog(mainActivity).show {
+                        MaterialDialog(mainActivityContext).show {
                             title(text = "添加订阅")
                             message(text = "仅支持RSS 2.0 协议")
                             input { dialog,text ->
@@ -99,11 +102,11 @@ class ChannelFragment : Fragment() {
                         for (i in it) {
                             if (i.second) success += 1 else fail += 1
                         }
-                        if (fragmentManager.findFragmentById(R.id.frag_container) is ChannelFragment) {
+                        if (fragmentManager.findFragmentById(R.id.frag_container) is ChannelListFragment) {
                             swipeRefresh.isRefreshing = false
                         }
-                        mainActivity.myViewModel.refresh()
-                        Toasty.info(mainActivity, "${success}成功 ${fail}失败", Toasty.LENGTH_SHORT)
+                        MainActivity.myViewModel.refresh()
+                        Toasty.info(MyApplication.context, "${success}成功 ${fail}失败", Toasty.LENGTH_SHORT)
                             .show()
                     }
                 })
@@ -113,26 +116,26 @@ class ChannelFragment : Fragment() {
 
         swipeRefresh.setOnRefreshListener(swipeRefreshListener)
 
-        if (mainActivity.hasNotRefresh && channelDao.size() > 0) {
+        if (MainActivity.hasNotRefresh && channelDao.size() > 0) {
             swipeRefreshListener.onRefresh()
-            mainActivity.hasNotRefresh = false
+            MainActivity.hasNotRefresh = false
         }
 
         feedsRecycleView.apply {
-            layoutManager = LinearLayoutManager(mainActivity)
+            layoutManager = LinearLayoutManager(MyApplication.context)
             adapter = channelAdapter
         }
 
-        channelAdapter.setOnItemClickListener(object : ChannelAdapter.OnItemClickListener {
+        channelAdapter.setOnItemClickListener(object : ChannelListAdapter.OnItemClickListener {
             override fun onClick(view: View, position: Int) {
                 fragmentManager.beginTransaction()
-                    .replace(R.id.frag_container, ItemFragment(channelList[position]))
+                    .replace(R.id.frag_container, ItemListFragment(channelList[position]))
                     .addToBackStack(null)
                     .commit()
             }
 
             override fun onLongClick(view: View, position: Int) {
-                MaterialDialog(mainActivity).show {
+                MaterialDialog(MyApplication.context).show {
                     title(text = channelList[position].title)
                     message(text = channelList[position].description)
                     input(hint = "输入新的标题") { materialDialog, charSequence ->
@@ -147,7 +150,7 @@ class ChannelFragment : Fragment() {
                         channelDao.delete(channelList[position])
                         itemDao.deleteByChannel(channelList[position].link)
                         Toasty.success(
-                            mainActivity,
+                            MyApplication.context,
                             "已删除 " + channelList[position].title,
                             Toasty.LENGTH_SHORT
                         ).show()

@@ -8,8 +8,8 @@ import com.sun.kikyorss.R
 import com.sun.kikyorss.database.Channel
 import kotlinx.android.synthetic.main.adapter_layout.view.*
 
-class ChannelAdapter(private val channelList: MutableList<Channel>) :
-    RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder>() {
+class ChannelListAdapter(private val channelList: MutableList<Channel>) :
+    RecyclerView.Adapter<ChannelListAdapter.ChannelViewHolder>() {
     private lateinit var onItemClickListener: OnItemClickListener
 
     inner class ChannelViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -12,8 +12,8 @@ import com.sun.kikyorss.formatDate
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.adapter_layout.view.*
 
-class ItemAdapter(private val itemList: List<Item>, private val fragmentManager: FragmentManager) :
-    RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemListAdapter(private val itemList: List<Item>, private val fragmentManager: FragmentManager) :
+    RecyclerView.Adapter<ItemListAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cell = itemView.cell!!
@@ -47,6 +47,7 @@ class ItemAdapter(private val itemList: List<Item>, private val fragmentManager:
             }
         } else {
             holder.title.text = ""
+            holder.date.visibility=View.GONE
             holder.cell.setOnClickListener {
                 Toasty.info(MyApplication.context, "到结尾了哦~", Toasty.LENGTH_SHORT).show()
             }
