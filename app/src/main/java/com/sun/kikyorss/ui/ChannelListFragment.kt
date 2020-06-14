@@ -1,5 +1,7 @@
 package com.sun.kikyorss.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -13,10 +15,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
 import com.sun.kikyorss.*
-import com.sun.kikyorss.MyApplication.Companion.channelDao
-import com.sun.kikyorss.MyApplication.Companion.itemDao
-import com.sun.kikyorss.MyApplication.Companion.context
+import com.sun.kikyorss.logic.MyApplication.Companion.channelDao
+import com.sun.kikyorss.logic.MyApplication.Companion.itemDao
 import com.sun.kikyorss.database.Channel
+import com.sun.kikyorss.logic.*
 import com.sun.kikyorss.ui.MainActivity.Companion.mainActivityContext
 
 import es.dmoral.toasty.Toasty
@@ -76,11 +78,9 @@ class ChannelListFragment : Fragment() {
                         }
                     }
                     R.id.info_frag -> {
-                        if (!(fragmentManager.fragments.last() is InfoFragment))
-                            fragmentManager.beginTransaction()
-                                .replace(R.id.frag_container, InfoFragment())
-                                .addToBackStack(null)
-                                .commit()
+                        val uri: Uri = Uri.parse(MyApplication.releasePage)
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        startActivity(intent)
                     }
                 }
             true
@@ -135,7 +135,7 @@ class ChannelListFragment : Fragment() {
             }
 
             override fun onLongClick(view: View, position: Int) {
-                MaterialDialog(MyApplication.context).show {
+                MaterialDialog(mainActivityContext).show {
                     title(text = channelList[position].title)
                     message(text = channelList[position].description)
                     input(hint = "输入新的标题") { materialDialog, charSequence ->
@@ -164,23 +164,24 @@ class ChannelListFragment : Fragment() {
     }
 
     private fun getChannel(url: String) {
-        val urlFormatted= formatUrl(url)
-        if(channelDao.isExist(formatUrl(urlFormatted))){
+        if(channelDao.isExist(url)){
             Toasty.error(MyApplication.context, "订阅已存在", Toasty.LENGTH_SHORT).show()
             return
         }
         val client = MyOkHttp.getClient()
-        val request = MyOkHttp.getRequset(urlFormatted)
+        val request = MyOkHttp.getRequest(url)
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Looper.prepare()
-                Toasty.error(MyApplication.context, "网络错误", Toasty.LENGTH_LONG).show()
+                Toasty.error(MyApplication.context, "网络或网址错误", Toasty.LENGTH_LONG).show()
+                e.printStackTrace()
                 Looper.loop()
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string().toString()
                 val isrss2 = isRss2(responseBody)
+                Log.i("__resp",responseBody)
                 if (isrss2)
                     try {
                         var title: String = ""
@@ -197,7 +198,7 @@ class ChannelListFragment : Fragment() {
                                 }
                             eventType = parser.next()
                         }
-                        channelDao.insert(Channel(title, urlFormatted, description))
+                        channelDao.insert(Channel(title, url, description))
                         Looper.prepare()
                         Toasty.success(MyApplication.context,"添加成功,请手动刷新",Toasty.LENGTH_SHORT).show()
                         Looper.loop()
@@ -207,11 +208,15 @@ class ChannelListFragment : Fragment() {
                         Looper.loop()
                     }
                 else
+                {
+                    Looper.prepare()
                     Toasty.error(
                         MyApplication.context,
                         "错误的订阅地址",
                         Toasty.LENGTH_LONG
                     ).show()
+                    Looper.loop()
+                }
             }
         })
     }

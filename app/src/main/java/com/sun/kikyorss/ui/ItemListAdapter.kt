@@ -5,10 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
-import com.sun.kikyorss.MyApplication
+import com.sun.kikyorss.logic.MyApplication
 import com.sun.kikyorss.R
 import com.sun.kikyorss.database.Item
-import com.sun.kikyorss.formatDate
+import com.sun.kikyorss.logic.formatDate
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.adapter_layout.view.*
 
@@ -37,7 +37,8 @@ class ItemListAdapter(private val itemList: List<Item>, private val fragmentMana
             }
             if (item.pubDate.isNotBlank()) {
                 holder.date.visibility = View.VISIBLE
-                holder.date.text = formatDate(item.pubDate)
+                holder.date.text =
+                    formatDate(item.pubDate)
             }
             holder.cell.setOnClickListener {
                 fragmentManager.beginTransaction().replace(

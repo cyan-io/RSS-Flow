@@ -6,11 +6,10 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProviders
 import com.sun.kikyorss.*
+import com.sun.kikyorss.logic.CheckUpdate
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
-
 
     companion object{
         lateinit var toolBar: androidx.appcompat.widget.Toolbar
@@ -30,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         toolBar = toolbar
         mainActivityContext=this
         myViewModel = ViewModelProviders.of(this).get(MyViewModel::class.java)
-        checkUpdate(frag_container, this)
+        CheckUpdate(frag_container,this)
     }
 }
 

@@ -1,10 +1,9 @@
 package com.sun.kikyorss
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.sun.kikyorss.MyApplication.Companion.channelDao
-import com.sun.kikyorss.MyApplication.Companion.itemDao
+import com.sun.kikyorss.logic.MyApplication.Companion.channelDao
+import com.sun.kikyorss.logic.MyApplication.Companion.itemDao
 import com.sun.kikyorss.database.*
 
 class MyViewModel : ViewModel() {

@@ -2,9 +2,8 @@ package com.sun.kikyorss.message
 
 import android.os.Looper
 import android.util.Log
-import com.sun.kikyorss.MyApplication.Companion.context
+import com.sun.kikyorss.logic.MyApplication.Companion.context
 import es.dmoral.toasty.Toasty
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableEmitter
 import io.reactivex.rxjava3.core.ObservableOnSubscribe

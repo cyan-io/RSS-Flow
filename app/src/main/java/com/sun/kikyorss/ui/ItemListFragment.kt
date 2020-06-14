@@ -11,7 +11,7 @@ import com.sun.kikyorss.R
 import com.sun.kikyorss.database.Channel
 import kotlinx.android.synthetic.main.fragment_article_list.*
 
-class ItemListFragment(val channel: Channel) : Fragment() {
+class ItemListFragment(private val channel: Channel) : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

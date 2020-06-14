@@ -1,8 +1,8 @@
-package com.sun.kikyorss
+package com.sun.kikyorss.logic
 
 import androidx.lifecycle.MutableLiveData
-import com.sun.kikyorss.MyApplication.Companion.channelDao
-import com.sun.kikyorss.MyApplication.Companion.itemDao
+import com.sun.kikyorss.logic.MyApplication.Companion.channelDao
+import com.sun.kikyorss.logic.MyApplication.Companion.itemDao
 import com.sun.kikyorss.database.*
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
@@ -45,7 +45,7 @@ class LoadItemUnit2(var channelList: List<Channel>?) {
     }
 
     private fun loadItem(client: OkHttpClient, url: String) {
-        val request = MyOkHttp.getRequset(url)
+        val request = MyOkHttp.getRequest(url)
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 emitter.onNext(Pair(url,false))

@@ -7,11 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.sun.kikyorss.Configurations
 import com.sun.kikyorss.R
 import com.sun.kikyorss.database.Item
-import com.sun.kikyorss.resizeHtmlImg
-import kotlinx.android.synthetic.main.activity_main.*
+import com.sun.kikyorss.logic.MyApplication
+import com.sun.kikyorss.logic.resizeHtmlImg
 import kotlinx.android.synthetic.main.fragment_article.*
 
 
@@ -30,7 +29,7 @@ class ArticleFragment(val item: Item) : Fragment() {
         MainActivity.toolBar.title = item.title
         MainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = false
 
-        article_detail.settings.javaScriptEnabled = Configurations.javaScriptEnabled
+        article_detail.settings.javaScriptEnabled = MyApplication.javaScriptEnabled
 
         article_detail.loadDataWithBaseURL(
             item.link,

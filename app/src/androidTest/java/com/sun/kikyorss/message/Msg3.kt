@@ -4,11 +4,9 @@ import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.sun.kikyorss.MyApplication
+import com.sun.kikyorss.logic.MyApplication
 import es.dmoral.toasty.Toasty
 import java.lang.Exception
-import java.nio.channels.Channel
-import kotlin.math.sign
 
 class Msg3(private val lifecycleOwner: LifecycleOwner) {
     private val signal = MutableLiveData<MsgType>()

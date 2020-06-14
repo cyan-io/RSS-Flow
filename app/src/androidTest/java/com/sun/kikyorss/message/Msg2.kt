@@ -1,7 +1,7 @@
 package com.sun.kikyorss.message
 
 import android.os.Looper
-import com.sun.kikyorss.MyApplication.Companion.context
+import com.sun.kikyorss.logic.MyApplication.Companion.context
 import es.dmoral.toasty.Toasty
 
 class Msg2 {
