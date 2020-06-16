@@ -24,24 +24,24 @@ class Msg3(private val lifecycleOwner: LifecycleOwner) {
             if (it != null)
                 when (it) {
                     MsgType.ERROR_EXIST -> Toasty.error(
-                        MyApplication.context,
+                        MyApplication.appContext,
                         "订阅已存在",
                         Toasty.LENGTH_SHORT
                     )
                         .show()
                     MsgType.ERROR -> Toasty.error(
-                        MyApplication.context,
+                        MyApplication.appContext,
                         "ERROR",
                         Toasty.LENGTH_LONG
                     ).show()
                     MsgType.ERROR_NET -> Toasty.error(
-                        MyApplication.context,
+                        MyApplication.appContext,
                         "网络错误",
                         Toasty.LENGTH_LONG
                     )
                         .show()
                     MsgType.ERROR_WRONG_FEED -> Toasty.error(
-                        MyApplication.context,
+                        MyApplication.appContext,
                         "错误的订阅地址",
                         Toasty.LENGTH_LONG
                     )
@@ -52,13 +52,13 @@ class Msg3(private val lifecycleOwner: LifecycleOwner) {
                         Looper.prepare()
 
                         Toasty.success(
-                            MyApplication.context,
+                            MyApplication.appContext,
                             "添加成功,请手动刷新",
                             Toasty.LENGTH_SHORT
                         ).show()
                         Looper.loop()
                     }
-                    else -> Toasty.info(MyApplication.context, "UNKNOWM", Toasty.LENGTH_LONG).show()
+                    else -> Toasty.info(MyApplication.appContext, "UNKNOWM", Toasty.LENGTH_LONG).show()
                 }
         })
     }

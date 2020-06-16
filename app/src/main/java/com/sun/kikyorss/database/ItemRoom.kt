@@ -1,10 +1,7 @@
 package com.sun.kikyorss.database
 
 import android.content.Context
-import androidx.annotation.Nullable
 import androidx.room.*
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 
 
 @Entity
@@ -13,8 +10,7 @@ data class Item(
     val title: String,
     @PrimaryKey val link: String,
     val description: String,
-    var pubDate: String = "",
-    var lastBuildDate: String = "",
+    val pubDate: String?,
     var hadRead: Boolean = false,
     var star: Boolean = false
 )
@@ -31,27 +27,22 @@ interface ItemDao {
     @Update
     fun update(item: Item)
 
-    @Query("delete from Item")
-    fun clear()
+    @Query("select * from Item where parent = :url")
+    fun loadByParent(url: String): MutableList<Item>
 
-    @Query("select * from Item where parent = :p")
-    fun load(p: String): List<Item>
-
-    @Query("delete from Item where parent = :link")
-    fun deleteByChannel(link: String)
-
-    @Query("select * from Item")
-    fun loadAll(): List<Item>
+    @Query("delete from Item where parent = :url")
+    fun deleteByParent(url: String)
 
     @Query("select * from Item where link= :link")
     fun query(link: String): Item?
 
     fun compareInsertDelete(itemList: MutableList<Item>) {
-        for (i in itemList) {
-            i.hadRead = query(i.link)?.hadRead ?: false
-        }
+        for (i in itemList)
+            query(i.link)?.let {
+                i.hadRead = it.hadRead
+            }
         if (itemList.size > 0)
-            deleteByChannel(itemList.last().parent)
+            deleteByParent(itemList.last().parent)
         for (i in itemList)
             insert(i)
     }
@@ -70,11 +61,8 @@ abstract class ItemDatabase : RoomDatabase() {
             return Room.databaseBuilder(
                 context.applicationContext,
                 ItemDatabase::class.java,
-                "Items"
-            ).build()
-                .apply {
-                    instance = this
-                }
+                "Items.db"
+            ).allowMainThreadQueries().build().apply { instance = this }
         }
     }
 }

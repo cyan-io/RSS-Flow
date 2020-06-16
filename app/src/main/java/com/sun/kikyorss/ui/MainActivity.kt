@@ -13,7 +13,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object{
         lateinit var toolBar: androidx.appcompat.widget.Toolbar
-        lateinit var myViewModel: MyViewModel
         lateinit var mainFragmentManager: FragmentManager
         lateinit var mainActivityContext: Context
         var hasNotRefresh = true
@@ -28,7 +27,6 @@ class MainActivity : AppCompatActivity() {
             .commit()
         toolBar = toolbar
         mainActivityContext=this
-        myViewModel = ViewModelProviders.of(this).get(MyViewModel::class.java)
         CheckUpdate(frag_container,this)
     }
 }

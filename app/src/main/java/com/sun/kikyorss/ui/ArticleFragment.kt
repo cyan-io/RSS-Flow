@@ -14,7 +14,7 @@ import com.sun.kikyorss.logic.resizeHtmlImg
 import kotlinx.android.synthetic.main.fragment_article.*
 
 
-class ArticleFragment(val item: Item) : Fragment() {
+class ArticleFragment(private val item: Item) : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,11 +26,12 @@ class ArticleFragment(val item: Item) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        MainActivity.toolBar.title = item.title
-        MainActivity.toolBar.menu.findItem(R.id.add_feed).isVisible = false
+        MainActivity.toolBar.apply {
+            menu.findItem(R.id.add_feed).isVisible = false
+            title = item.title
+        }
 
         article_detail.settings.javaScriptEnabled = MyApplication.javaScriptEnabled
-
         article_detail.loadDataWithBaseURL(
             item.link,
             resizeHtmlImg(item.description),

@@ -13,12 +13,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="5dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:menu="@menu/main"
-        app:title="Kikyo RSS" />
+        app:menu="@menu/main" />
 
     <FrameLayout
         android:id="@+id/frag_container"

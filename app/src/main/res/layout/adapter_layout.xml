@@ -13,12 +13,22 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="1dp"
         android:clickable="true"
-        android:elevation="8dp"
+        android:elevation="4dp"
         android:focusable="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         android:padding="10dp"
         android:theme="@style/Theme.MaterialComponents.Light"
         app:cardCornerRadius="7dp">
+
+        <!--<TextView
+            android:id="@+id/bagde"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:textSize="8sp"
+            android:translationX="-4dp"
+            android:translationY="2dp"
+            android:text="●"/>-->
 
         <LinearLayout
             android:layout_width="match_parent"

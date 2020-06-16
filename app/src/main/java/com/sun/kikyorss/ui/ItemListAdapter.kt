@@ -12,7 +12,10 @@ import com.sun.kikyorss.logic.formatDate
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.adapter_layout.view.*
 
-class ItemListAdapter(private val itemList: List<Item>, private val fragmentManager: FragmentManager) :
+class ItemListAdapter(
+    private val itemList: List<Item>,
+    private val fragmentManager: FragmentManager
+) :
     RecyclerView.Adapter<ItemListAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -31,26 +34,30 @@ class ItemListAdapter(private val itemList: List<Item>, private val fragmentMana
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         if (position < itemList.size) {
-            val item=itemList[position]
+            val item = itemList[position]
             holder.apply {
-                title.text =item.title
+                title.text = item.title
+                cell.setOnClickListener {
+                    fragmentManager.beginTransaction().replace(
+                        R.id.frag_container,
+                        ArticleFragment(item)
+                    ).addToBackStack(null).commit()
+                }
             }
-            if (item.pubDate.isNotBlank()) {
-                holder.date.visibility = View.VISIBLE
-                holder.date.text =
-                    formatDate(item.pubDate)
+            item.pubDate?.let {
+                holder.date.apply {
+                    visibility = View.VISIBLE
+                    text = formatDate(it)
+                }
             }
-            holder.cell.setOnClickListener {
-                fragmentManager.beginTransaction().replace(
-                    R.id.frag_container,
-                    ArticleFragment(item)
-                ).addToBackStack(null).commit()
-            }
+
         } else {
-            holder.title.text = ""
-            holder.date.visibility=View.GONE
-            holder.cell.setOnClickListener {
-                Toasty.info(MyApplication.context, "到结尾了哦~", Toasty.LENGTH_SHORT).show()
+            holder.apply {
+                title.text = ""
+                date.visibility = View.GONE
+                cell.setOnClickListener {
+                    Toasty.info(MyApplication.appContext, "到结尾了哦~", Toasty.LENGTH_SHORT).show()
+                }
             }
         }
     }

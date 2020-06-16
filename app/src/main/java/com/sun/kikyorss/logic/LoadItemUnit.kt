@@ -15,31 +15,29 @@ import java.io.IOException
 import java.io.StringReader
 import java.lang.Exception
 
-class LoadItemUnit2(var channelList: List<Channel>?) {
+class LoadItemUnit() {
 
-    private lateinit var emitter: FlowableEmitter<Pair<String,Boolean>>
-    val onResponse=MutableLiveData<MutableList<Pair<String,Boolean>>>()
-    private val mutableList= mutableListOf<Pair<String,Boolean>>()
+    private lateinit var emitter: FlowableEmitter<Pair<String, Boolean>>
+    val onResponse = MutableLiveData<MutableList<Pair<String, Boolean>>>()
+    private val mutableList = mutableListOf<Pair<String, Boolean>>()
+    private val channelList = channelDao.loadAll()
 
 
     init {
-        Flowable.create<Pair<String,Boolean>>({emitter ->
-            this.emitter=emitter
-        },BackpressureStrategy.BUFFER).subscribe(Consumer {
-            if(it!=null)
+        Flowable.create<Pair<String, Boolean>>({ emitter ->
+            this.emitter = emitter
+        }, BackpressureStrategy.BUFFER).subscribe(Consumer {
+            if (it != null)
                 mutableList.add(it)
             onResponse.postValue(mutableList)
         })
 
 
-        if (channelList == null)
-            channelList = channelDao.loadAll()
-
-        if (channelList!!.isNotEmpty()) {
+        if (channelList.isNotEmpty()) {
             val client = MyOkHttp.getClient()
 
-            for (i in channelList!!) {
-                loadItem(client, i.link)
+            for (i in channelList) {
+                loadItem(client, i.url)
             }
         }
     }
@@ -48,23 +46,23 @@ class LoadItemUnit2(var channelList: List<Channel>?) {
         val request = MyOkHttp.getRequest(url)
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                emitter.onNext(Pair(url,false))
+                emitter.onNext(Pair(url, false))
             }
 
             override fun onResponse(call: Call, response: Response) {
-                prase(response.body?.string().toString(), url)
+                parse(response.body?.string().toString(), url)
             }
         })
     }
 
-    private fun prase(content: String, parent: String) {
+    private fun parse(content: String, parent: String) {
         val listItem = mutableListOf<Item>()
-        var signal=false
+        var signal = false
         try {
             var title: String = ""
             var link: String = ""
             var description: String = ""
-            var pubDate: String = ""
+            var pubDate: String? = null
 
             val parser = XmlPullParserFactory.newInstance().newPullParser()
             parser.setInput(StringReader(content))
@@ -84,7 +82,7 @@ class LoadItemUnit2(var channelList: List<Channel>?) {
                     title = ""
                     link = ""
                     description = ""
-                    pubDate = ""
+                    pubDate = null
                 }
                 eventType = parser.next()
             }
@@ -92,7 +90,7 @@ class LoadItemUnit2(var channelList: List<Channel>?) {
         } catch (e: Exception) {
             signal = false
         }
-        emitter.onNext(Pair(parent,signal))
+        emitter.onNext(Pair(parent, signal))
         itemDao.compareInsertDelete(listItem)
     }
 }

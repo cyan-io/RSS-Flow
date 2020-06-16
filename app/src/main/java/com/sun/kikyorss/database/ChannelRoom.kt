@@ -6,9 +6,12 @@ import androidx.room.*
 
 @Entity
 data class Channel(
+    @PrimaryKey val url: String,
     var title: String,
-    @PrimaryKey val link: String,
-    val description: String
+    val link: String,
+    val description: String,
+    val pubDate:String?,
+    val lastBuildDate:String?
 )
 
 @Dao
@@ -23,18 +26,18 @@ interface ChannelDao {
     fun update(channel: Channel)
 
     @Query("select * from Channel")
-    fun loadAll(): List<Channel>
+    fun loadAll(): MutableList<Channel>
 
-    @Query("select * from channel where link = :l")
+    @Query("select * from channel where url = :l")
     fun query(l: String): Channel?
 
     fun isExist(l: String) = query(l) != null
 
     @Query("select count(*) from channel")
-    fun size():Int
+    fun size(): Int
 }
 
-@Database(version = 1,entities = [Channel::class])
+@Database(version = 1, entities = [Channel::class])
 abstract class ChannelDatabase : RoomDatabase() {
     abstract fun getChannelDao(): ChannelDao
 
@@ -48,8 +51,8 @@ abstract class ChannelDatabase : RoomDatabase() {
             }
             return Room.databaseBuilder(
                 context.applicationContext,
-                ChannelDatabase::class.java, "Channels"
-            ).allowMainThreadQueries().build().apply { instance = this}
+                ChannelDatabase::class.java, "Channels.db"
+            ).allowMainThreadQueries().build().apply { instance = this }
         }
     }
 }
