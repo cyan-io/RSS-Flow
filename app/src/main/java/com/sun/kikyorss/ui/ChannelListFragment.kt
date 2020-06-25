@@ -1,5 +1,6 @@
 package com.sun.kikyorss.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -21,6 +22,7 @@ import com.sun.kikyorss.logic.*
 import com.sun.kikyorss.ui.MainActivity.Companion.mainActivityContext
 
 import es.dmoral.toasty.Toasty
+import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.android.synthetic.main.fragment_main.*
 import okhttp3.*
 import org.xmlpull.v1.XmlPullParser
@@ -54,13 +56,8 @@ class ChannelListFragment : Fragment() {
                     when (item.itemId) {
                         R.id.add_feed -> {
                             MaterialDialog(mainActivityContext).show {
-                                title(text = "添加订阅，仅支持RSS 2.0 协议")
-                                message(
-                                    text = "请注意，即使\nhttps://example.com和\nhttps://example." +
-                                            "com/访问效果相同，它们仍是不同的网址，这取决于目标服务" +
-                                            "器如何处理它们。"
-                                )
-                                input(hint= "http(s)://") { dialog, text ->
+                                title(text = "添加订阅，仅支持RSS 2.0")
+                                input(hint= "http(s)://") { _, text ->
                                     var right = false
                                     try {
                                         Request.Builder().url(text.toString()).build()
@@ -80,9 +77,12 @@ class ChannelListFragment : Fragment() {
                             }
                         }
                         R.id.info_frag -> {
-                            val uri: Uri = Uri.parse(MyApplication.releasePage)
-                            val intent = Intent(Intent.ACTION_VIEW, uri)
-                            startActivity(intent)
+                            if(!(fragmentManager.findFragmentById(R.id.frag_container) is InfoFragment)){
+                                fragmentManager.beginTransaction()
+                                    .replace(R.id.frag_container, InfoFragment())
+                                    .addToBackStack(null)
+                                    .commit()
+                            }
                         }
                     }
                 true

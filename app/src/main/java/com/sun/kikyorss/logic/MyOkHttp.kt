@@ -16,7 +16,7 @@ object MyOkHttp {
                 ConnectionSpec.COMPATIBLE_TLS,
                 ConnectionSpec.CLEARTEXT, ConnectionSpec.MODERN_TLS, ConnectionSpec.RESTRICTED_TLS
             )
-        ).connectTimeout(MyApplication.netTimeout, TimeUnit.SECONDS).build()
+        ).build()
     }
 
     fun getRequest(url: String): Request {

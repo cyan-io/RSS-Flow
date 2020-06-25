@@ -9,6 +9,7 @@
     </style>
 
     <style name="MyTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">#FAFAFA</item>
         <item name="md_corner_radius">7dp</item>
         <item name="md_color_title">#000000</item>
         <item name="md_color_content">#A5000000</item>

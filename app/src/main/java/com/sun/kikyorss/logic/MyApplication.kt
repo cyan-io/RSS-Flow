@@ -10,9 +10,6 @@ class MyApplication : Application() {
         lateinit var itemDao: ItemDao
         lateinit var channelDao: ChannelDao
         const val releasePage="http://kikyo.ink/index.php/rssflow.html"
-        const val versionUrl="https://maki863.gitee.io/kikyorss/version.json"
-        const val currentVersion=1
-        const val netTimeout=10L
         const val javaScriptEnabled=false
     }
 

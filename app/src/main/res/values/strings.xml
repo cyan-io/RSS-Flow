@@ -3,6 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="about"><![CDATA[关于 & Bug提交]]></string>
+    <string name="about">关于</string>
     <string name="add_feed">添加订阅</string>
+    <string name="info">一个兴趣使然的RSS订阅应用，目前仅支持RSS2.0格式、仅在酷安@夏木286 发布和更新。如果遇到问题，欢迎留言反馈。</string>
 </resources>

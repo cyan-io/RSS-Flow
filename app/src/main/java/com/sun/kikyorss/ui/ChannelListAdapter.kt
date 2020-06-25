@@ -30,26 +30,27 @@ class ChannelListAdapter(private val channelList: MutableList<Channel>) :
         holder.title.text = channelList[position].title
 
         holder.description.apply {
-            if(channelList[position].description.isNotBlank()){
+            if (channelList[position].description.isNotBlank()) {
                 visibility = View.VISIBLE
                 text = channelList[position].description
             }
         }
-        onItemClickListener.let {
-            holder.cell.apply {
-                setOnClickListener {
-                    onItemClickListener.onClick(it, position)
-                }
-                setOnLongClickListener {
-                    onItemClickListener.onLongClick(it,position)
-                    true
+        if (this::onItemClickListener.isInitialized)
+            onItemClickListener.let {
+                holder.cell.apply {
+                    setOnClickListener {
+                        onItemClickListener.onClick(it, position)
+                    }
+                    setOnLongClickListener {
+                        onItemClickListener.onLongClick(it, position)
+                        true
+                    }
                 }
             }
-        }
     }
 
-    fun setOnItemClickListener(onItemClickListener: OnItemClickListener){
-        this.onItemClickListener=onItemClickListener
+    fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
+        this.onItemClickListener = onItemClickListener
     }
 
     interface OnItemClickListener {
