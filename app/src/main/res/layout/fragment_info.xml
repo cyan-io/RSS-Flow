@@ -8,9 +8,8 @@
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="5dp"
-        android:layout_marginTop="4dp"
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
         android:elevation="4dp"
         android:padding="10dp"
         android:theme="@style/Theme.MaterialComponents.Light"
@@ -20,10 +19,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_margin="10dp"
             android:textColor="#000000"
-            android:textStyle="bold"
-            android:visibility="visible"
             android:text="@string/info"/>
     </com.google.android.material.card.MaterialCardView>
 
